@@ -25,6 +25,8 @@ struct LidarEdgeFactor
 
 		//Eigen::Quaternion<T> q_last_curr{q[3], T(s) * q[0], T(s) * q[1], T(s) * q[2]};
 		Eigen::Quaternion<T> q_last_curr{q[3], q[0], q[1], q[2]};
+
+		//差值计算
 		Eigen::Quaternion<T> q_identity{T(1), T(0), T(0), T(0)};
 		q_last_curr = q_identity.slerp(T(s), q_last_curr);
 		Eigen::Matrix<T, 3, 1> t_last_curr{T(s) * t[0], T(s) * t[1], T(s) * t[2]};
@@ -35,6 +37,7 @@ struct LidarEdgeFactor
 		Eigen::Matrix<T, 3, 1> nu = (lp - lpa).cross(lp - lpb);
 		Eigen::Matrix<T, 3, 1> de = lpa - lpb;
 
+		//平行四边形，面积/底 = 高
 		residual[0] = nu.x() / de.norm();
 		residual[1] = nu.y() / de.norm();
 		residual[2] = nu.z() / de.norm();
@@ -84,6 +87,7 @@ struct LidarPlaneFactor
 		Eigen::Matrix<T, 3, 1> lp;
 		lp = q_last_curr * cp + t_last_curr;
 
+		//空间平行四边形（六面体），体积/底面积 = 高
 		residual[0] = (lp - lpj).dot(ljm);
 
 		return true;
